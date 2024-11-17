@@ -10,25 +10,25 @@ This project demonstrates the real-time application of Open Database Connectivit
 
 ## Key Features
 ### 1. MySQL Database Integration
-  •	A MySQL database serves as the backend storage, storing product details like ID, name, description, quantity, price, and timestamps.
-  •	Uses a schema with real-time timestamp updates to track changes to inventory.
+  -	A MySQL database serves as the backend storage, storing product details like ID, name, description, quantity, price, and timestamps.
+  -	Uses a schema with real-time timestamp updates to track changes to inventory.
 
 ### 2. Backend with Flask Framework
-  •	Implements RESTful APIs for CRUD operations on the product inventory.
-  •	Connects to the MySQL database using ODBC standards, ensuring real-time data interaction.
-  •	Supports multiple endpoints:
-    o	GET /products: Retrieves the entire product list.
-    o	POST /products: Adds a new product to the inventory.
-    o	POST /products/<product_id>/update-quantity: Adjusts the quantity of a specific product dynamically.
+  -	Implements RESTful APIs for CRUD operations on the product inventory.
+  -	Connects to the MySQL database using ODBC standards, ensuring real-time data interaction.
+  -	Supports multiple endpoints:
+    -	GET /products: Retrieves the entire product list.
+    -	POST /products: Adds a new product to the inventory.
+    -	POST /products/<product_id>/update-quantity: Adjusts the quantity of a specific product dynamically.
 
 ### 3. Frontend with HTML, CSS, and JavaScript
-  •	Provides an intuitive interface for managing inventory.
-  •	Displays inventory details in tabular form with low-stock indicators for better decision-making.
-  •	Allows stock adjustments through increment/decrement buttons.
+  -	Provides an intuitive interface for managing inventory.
+  -	Displays inventory details in tabular form with low-stock indicators for better decision-making.
+  -	Allows stock adjustments through increment/decrement buttons.
 
 ## Implementation of ODBC Connectivity
 ODBC acts as the middleware between the Flask application and the MySQL database. It ensures:
-  •	Standardization: Provides a consistent interface for interacting with the database.
-  •	Real-Time Interaction: Facilitates real-time API responses for data retrieval and updates.
-  •	Error Handling: Handles database-specific errors and ensures system reliability.
+  -	Standardization: Provides a consistent interface for interacting with the database.
+  -	Real-Time Interaction: Facilitates real-time API responses for data retrieval and updates.
+  -	Error Handling: Handles database-specific errors and ensures system reliability.
 The database connection is initialized at runtime, allowing dynamic queries to be executed without compromising performance. The python mysql.connector library is used to provide the ODBC connectivity between the Flask application and the MySQL database.
