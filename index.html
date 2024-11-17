@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .quantity-adjust {
+            background-color: #28a745;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .low-stock {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Inventory Management System</h1>
+
+    <div id="productForm">
+        <h2>Add New Product</h2>
+        <div class="form-group">
+            <label for="name">Product Name:</label>
+            <input type="text" id="name" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="quantity">Initial Quantity:</label>
+            <input type="number" id="quantity" required min="0">
+        </div>
+        <div class="form-group">
+            <label for="price">Price ($):</label>
+            <input type="number" id="price" required min="0" step="0.01">
+        </div>
+        <button onclick="addProduct()">Add Product</button>
+    </div>
+
+    <h2>Inventory List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Last Updated</th>
+                <th style="width: 102px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="productsList">
+        </tbody>
+    </table>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch(`${API_URL}/products`);
+                const products = await response.json();
+                displayProducts(products);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        }
+
+        function displayProducts(products) {
+            const productsList = document.getElementById('productsList');
+            productsList.innerHTML = products.map(product => `
+                <tr>
+                    <td>${product.id}</td>
+                    <td>${product.name}</td>
+                    <td>${product.description || ''}</td>
+                    <td class="${product.quantity < 10 ? 'low-stock' : ''}">${product.quantity}</td>
+                    <td>${product.price}</td>
+                    <td>${new Date(product.last_updated).toLocaleString()}</td>
+                    <td>
+                        <button class="quantity-adjust" onclick="adjustQuantity(${product.id}, -1)">-1</button>
+                        <button class="quantity-adjust" onclick="adjustQuantity(${product.id}, 1)">+1</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function addProduct() {
+            const name = document.getElementById('name').value;
+            const description = document.getElementById('description').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const price = parseFloat(document.getElementById('price').value);
+
+            if (!name || isNaN(quantity) || isNaN(price)) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, description, quantity, price })
+                });
+
+                if (response.ok) {
+                    document.getElementById('name').value = '';
+                    document.getElementById('description').value = '';
+                    document.getElementById('quantity').value = '';
+                    document.getElementById('price').value = '';
+                    fetchProducts();
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Error adding product');
+                }
+            } catch (error) {
+                console.error('Error adding product:', error);
+                alert('Error adding product');
+            }
+        }
+
+        async function adjustQuantity(productId, change) {
+            try {
+                const response = await fetch(`${API_URL}/products/${productId}/update-quantity`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ quantity_change: change })
+                });
+
+                if (response.ok) {
+                    fetchProducts();
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Error updating quantity');
+                }
+            } catch (error) {
+                console.error('Error updating quantity:', error);
+                alert('Error updating quantity');
+            }
+        }
+
+        fetchProducts();
+    </script>
+</body>
+
+</html>
